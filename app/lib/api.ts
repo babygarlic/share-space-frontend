@@ -61,6 +61,16 @@ export const spacesApi = {
 
   getById: (id: string) => api.get(`/spaces/${id}`).then((r) => r.data),
 
+  getMembers: (id: string) => api.get(`/spaces/${id}/members`).then((r) => r.data),
+
+  updateMemberRole: (id: string, memberId: string, role: string) =>
+    api.patch(`/spaces/${id}/members/${memberId}/role`, { role }).then((r) => r.data),
+
+  removeMember: (id: string, memberId: string) =>
+    api.delete(`/spaces/${id}/members/${memberId}`).then((r) => r.data),
+
+  leave: (id: string) => api.post(`/spaces/${id}/leave`).then((r) => r.data),
+
   updateStatus: (
     id: string,
     data: { status: "PLANNING" | "ACTIVE" | "COMPLETED" | "ARCHIVED" }
@@ -95,4 +105,13 @@ export const shareLinksApi = {
 
   regenerate: (spaceId: string) =>
     api.post(`/spaces/${spaceId}/share-links/regenerate`).then((r) => r.data),
+
+  revoke: (spaceId: string) =>
+    api.post(`/spaces/${spaceId}/share-links/revoke`).then((r) => r.data),
+
+  createCustom: (
+    spaceId: string,
+    data: { roleGranted?: string; maxUses?: number; expiresAt?: string }
+  ) => api.post(`/spaces/${spaceId}/share-links/custom`, data).then((r) => r.data),
 };
+
