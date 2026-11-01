@@ -30,7 +30,7 @@ interface SpaceDetail {
       completed: number;
     };
   };
-  shareLink?: string | null;
+  shareLink?: string | { token: string; url: string } | null;
 }
 
 export default function SpaceDetailPage({
@@ -90,11 +90,17 @@ export default function SpaceDetailPage({
     fetchSpace();
   }, [spaceId]);
 
+  const getSharePath = (link?: string | { token: string; url: string } | null) => {
+    if (!link) return "";
+    return typeof link === "string" ? link : link.url || `/s/${link.token}`;
+  };
+
   const handleCopyLink = () => {
     if (!space?.shareLink) return;
-    const fullUrl = space.shareLink.startsWith("http")
-      ? space.shareLink
-      : `${window.location.origin}${space.shareLink}`;
+    const sharePath = getSharePath(space.shareLink);
+    const fullUrl = sharePath.startsWith("http")
+      ? sharePath
+      : `${window.location.origin}${sharePath}`;
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -336,7 +342,7 @@ export default function SpaceDetailPage({
                     <div className="overflow-hidden">
                       <p className="text-xs text-white/50">Link mời tham gia thông minh (US-09)</p>
                       <p className="text-sm font-mono text-indigo-300 truncate max-w-sm sm:max-w-md">
-                        {space.shareLink}
+                        {getSharePath(space.shareLink)}
                       </p>
                     </div>
                   </div>
@@ -468,7 +474,7 @@ export default function SpaceDetailPage({
         onClose={() => setIsShareModalOpen(false)}
         spaceId={spaceId}
         spaceTitle={space.title}
-        currentShareLink={space.shareLink || null}
+        currentShareLink={getSharePath(space.shareLink) || null}
         isOwnerOrAdmin={isOwnerOrAdmin}
         onLinkUpdated={(newLink) => {
           setSpace((prev) => (prev ? { ...prev, shareLink: newLink } : null));
